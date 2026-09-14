@@ -369,6 +369,19 @@
   animation: float-up 7s ease-in-out infinite 2s;
 }
 
+@keyframes logo-3d-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg);
+  }
+  50% {
+    transform: translate3d(0, -5px, 0) rotateX(5deg) rotateY(-6deg);
+  }
+}
+.anim-logo-3d {
+  animation: logo-3d-float 7s ease-in-out infinite;
+}
+
 @keyframes pulse-glow {
   0%,
   100% {

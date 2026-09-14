@@ -1,16 +1,16 @@
 import * as React from "react";
-import { Navbar } from "./navbar";
 import { Footer } from "./cta-footer";
+import { HomeLogo } from "./home-logo";
 
 /**
- * Общий layout для страниц сайта: шапка сверху, контент, подвал снизу.
- * Используется на главной и на отдельных страницах (например, /services/znak-search),
- * чтобы шапка и подвал были одинаковыми везде.
+ * Общий layout для страниц сайта: контент, подвал снизу.
+ * Плавающий логотип в левом углу (клик — на главную) показывается
+ * на всех страницах кроме главной.
  */
 export function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex min-h-screen flex-col">
-      <Navbar />
+      <HomeLogo />
       <main className="flex-1">{children}</main>
       <Footer />
     </div>

@@ -1,7 +1,9 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { ChevronDown, ExternalLink } from "lucide-react";
+import { Logo3D } from "@/components/site/logo-3d";
 
 type NavItem = {
   label: string;
@@ -12,7 +14,7 @@ type NavItem = {
 const NAV: NavItem[] = [
   {
     label: "Сервисы",
-    href: "#services",
+    href: "/services",
     children: [
       { label: "Поиск знаков", href: "/services/znak-search" },
       { label: "Определение МКТУ", href: "/services/mktu-search" },
@@ -20,9 +22,9 @@ const NAV: NavItem[] = [
       { label: "Депонирование", href: "/deponirovanie" },
     ],
   },
-  { label: "Роспатент", href: "#rospatent" },
-  { label: "Типография", href: "#tipografiya" },
-  { label: "Общество", href: "#obshestvo" },
+  { label: "Роспатент", href: "/rospatent" },
+  { label: "Типография", href: "/tipografiya" },
+  { label: "Общество", href: "/obshestvo" },
   { label: "Знания", href: "/znaniya" },
 ];
 
@@ -45,49 +47,43 @@ export function Navbar() {
     >
       <div className="flex h-16 w-full items-center gap-6 px-4 sm:px-6 lg:gap-10 lg:px-8">
         {/* Логотип */}
-        <a href="/" className="group flex items-center">
-          <img
-            src="/LOGO.png"
-            alt="IPvsem.ru — Сообщество Авторов"
-            className="h-11 w-auto drop-shadow-sm transition-transform duration-300 group-hover:scale-105"
-          />
-        </a>
+        <Logo3D />
 
         {/* Десктоп навигация */}
         <nav className="hidden min-w-0 flex-1 items-center justify-between gap-2 lg:flex">
           {NAV.map((item) =>
             item.children ? (
               <div key={item.href} className="group relative">
-                <a
+                <Link
                   href={item.href}
                   className="flex items-center gap-1 whitespace-nowrap rounded-md px-3 py-2 text-lg font-extrabold text-black/85 transition-colors hover:bg-black/10 hover:text-black"
                 >
                   {item.label}
                   <ChevronDown className="h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-180" />
-                </a>
+                </Link>
                 {/* Выпадающее меню */}
-                <div className="pointer-events-none absolute left-0 top-full z-50 w-60 -translate-y-1 opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-hover:pointer-events-auto">
+                <div className="pointer-events-none absolute left-0 top-full z-50 w-60 -translate-y-1 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100">
                   <div className="mt-2 overflow-hidden rounded-lg border border-black/10 bg-white shadow-xl shadow-black/20">
                     {item.children.map((child) => (
-                      <a
+                      <Link
                         key={child.label}
                         href={child.href}
                         className="block border-b border-black/5 px-4 py-2.5 text-sm text-neutral-800 transition-colors last:border-b-0 hover:bg-[#f7efd8] hover:text-black"
                       >
                         {child.label}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </div>
               </div>
             ) : (
-              <a
+              <Link
                 key={item.href}
                 href={item.href}
                 className="whitespace-nowrap rounded-md px-3 py-2 text-lg font-extrabold text-black/85 transition-colors hover:bg-black/10 hover:text-black"
               >
                 {item.label}
-              </a>
+              </Link>
             )
           )}
           <a
@@ -103,12 +99,12 @@ export function Navbar() {
 
         {/* Действия */}
         <div className="flex items-center gap-2">
-          <a
-            href="#cabinet"
+          <Link
+            href="/obshestvo#cabinet"
             className="hidden rounded-full border border-black/30 bg-black/5 px-4 py-1.5 text-xs font-semibold text-black transition-all hover:bg-black hover:text-[#d4af37] sm:inline-block"
           >
             Кабинет
-          </a>
+          </Link>
           {/* Бургер для мобильных */}
           <button
             type="button"
@@ -147,32 +143,32 @@ export function Navbar() {
           {NAV.map((item) =>
             item.children ? (
               <div key={item.href} className="flex flex-col">
-                <a
+                <Link
                   href={item.href}
                   className="rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-900 transition-colors hover:bg-[#f7efd8]"
                 >
                   {item.label}
-                </a>
+                </Link>
                 <div className="ml-3 flex flex-col border-l border-black/10 pl-3">
                   {item.children.map((child) => (
-                    <a
+                    <Link
                       key={child.label}
                       href={child.href}
                       className="rounded-lg px-3 py-2 text-[13px] text-neutral-600 transition-colors hover:bg-[#f7efd8] hover:text-black"
                     >
                       {child.label}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
             ) : (
-              <a
+              <Link
                 key={item.href}
                 href={item.href}
                 className="rounded-lg px-3 py-2.5 text-sm text-neutral-900 transition-colors hover:bg-[#f7efd8]"
               >
                 {item.label}
-              </a>
+              </Link>
             )
           )}
           <a
@@ -184,12 +180,12 @@ export function Navbar() {
             ЗнакВсем
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
-          <a
-            href="#cabinet"
+          <Link
+            href="/obshestvo#cabinet"
             className="mt-2 rounded-full border border-black/20 bg-[#d4af37] px-3 py-2.5 text-center text-sm font-semibold text-black transition-all hover:bg-black hover:text-[#d4af37]"
           >
             Кабинет
-          </a>
+          </Link>
         </nav>
       </div>
     </header>

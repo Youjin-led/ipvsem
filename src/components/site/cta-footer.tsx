@@ -1,7 +1,9 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { withBasePath } from "@/lib/paths";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Mail, Phone } from "lucide-react";
 
@@ -125,12 +127,16 @@ const FOOTER_DETAILS = [
 export function Footer() {
   return (
     <footer className="relative overflow-hidden border-t border-border/60">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[minmax(260px,0.72fr)_minmax(0,1.28fr)] lg:px-8 lg:py-16">
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-transparent to-brand-950/10" aria-hidden />
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[minmax(300px,0.9fr)_minmax(0,1.1fr)] lg:px-8 lg:py-16">
         {/* Бренд */}
-        <div className="grid content-start gap-2">
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-brand-400">
-            IP EcoSystem · ПатентВсем
-          </p>
+        <div className="grid content-start gap-3">
+          <div className="flex items-center gap-3">
+            <Image src={withBasePath("/LOGO.png")} alt="" aria-hidden width={2035} height={773} className="h-10 w-auto sm:h-12" />
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-brand-400">
+              IP EcoSystem · ПатентВсем
+            </p>
+          </div>
           <h2 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl">
             Сообщество <span className="text-gradient">Авторов</span>
           </h2>
@@ -138,6 +144,27 @@ export function Footer() {
             Депонирование, патентование, стратегия и типография в одном
             экспертном центре ПатентВсем. Свидетельства, которые принимают суды.
           </p>
+
+          {/* Основные разделы */}
+          <nav className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5">
+            {[
+              { label: "Сервисы", href: "/services" },
+              { label: "Роспатент", href: "/rospatent" },
+              { label: "Типография", href: "/tipografiya" },
+              { label: "Общество", href: "/obshestvo" },
+              { label: "Знания", href: "/znaniya" },
+              { label: "Депонирование", href: "/deponirovanie" },
+            ].map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className="w-fit text-sm text-muted-foreground transition-colors hover:text-brand-300"
+              >
+                {l.label}
+              </a>
+            ))}
+          </nav>
+
           <a
             href="tel:+79689973835"
             className="mt-2 w-fit text-base font-bold text-brand-400 underline decoration-brand-400/50 underline-offset-4 transition-colors hover:text-brand-300"
@@ -151,7 +178,7 @@ export function Footer() {
           {FOOTER_DETAILS.map((d) => (
             <div
               key={d.label}
-              className="grid min-h-[92px] content-start gap-1.5 rounded-lg bg-white p-4 text-[#141414]"
+              className="grid min-h-[92px] content-start gap-1.5 rounded-lg border border-brand-400/15 bg-gradient-to-br from-white to-[#f7efd8] p-4 text-[#141414] transition-colors"
             >
               <span className="text-[13px] text-[#666666]">{d.label}</span>
               {d.href ? (

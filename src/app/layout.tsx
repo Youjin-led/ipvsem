@@ -7,6 +7,7 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
+import { withBasePath } from "@/lib/paths";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Сообщество Авторов" }],
   icons: {
-    icon: "/LOGO.png",
+    icon: withBasePath("/LOGO.png"),
   },
   openGraph: {
     title: "IPvsem.ru — Сообщество Авторов",
