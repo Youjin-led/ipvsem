@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Search } from "lucide-react";
 import { SECTIONS } from "./sections-data";
-import { Logo3D } from "./logo-3d";
+import { Pyramids3D } from "./pyramids-3d";
 
 export function Hero() {
   const router = useRouter();
@@ -98,7 +98,7 @@ export function Hero() {
               className="pointer-events-none absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-400/10 blur-3xl"
               aria-hidden
             />
-            <Logo3D imgClassName="h-28 sm:h-36 lg:h-44" />
+            <Pyramids3D imgClassName="h-56 sm:h-72 lg:h-96" />
           </div>
         </div>
       </div>
