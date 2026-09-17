@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { SiteLayout } from "@/components/site/site-layout";
 import { PageHero } from "@/components/site/page-hero";
 import { Knowledge } from "@/components/site/knowledge-cabinet";
+import { FinalCTA } from "@/components/site/cta-footer";
+import { CtaButtons } from "@/components/site/cta-buttons";
 import { KnowledgeIcon } from "@/components/site/icons";
 
 export const metadata: Metadata = {
@@ -36,10 +38,13 @@ export default function ZnaniyaPage() {
         }
         description="Методички, которых нет у других. Мы открыто делимся опытом — берите и применяйте."
         icon={<KnowledgeIcon className="h-10 w-10" />}
+        crumbs={[{ label: "База знаний" }]}
       />
 
       {/* Блок базы знаний (6 категорий + CTA методички) */}
       <Knowledge />
+      <CtaButtons title="Применили знания — закрепите результат" />
+      <FinalCTA />
     </SiteLayout>
   );
 }

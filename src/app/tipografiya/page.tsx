@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SiteLayout } from "@/components/site/site-layout";
 import { PageHero } from "@/components/site/page-hero";
 import { FinalCTA } from "@/components/site/cta-footer";
+import { CtaButtons } from "@/components/site/cta-buttons";
 import { PrintIcon } from "@/components/site/icons";
 import { SectionHeading } from "@/components/site/services";
 import { FileCheck2, BookOpen, Layers, Package } from "lucide-react";
@@ -72,6 +73,7 @@ export default function TipografiyaPage() {
         }
         description="Превращаем цифровые свидетельства и рукописи в осязаемые документы, книги и презентационные альбомы."
         icon={<PrintIcon className="h-10 w-10" />}
+        crumbs={[{ label: "Услуги", href: "/services" }, { label: "Типография" }]}
       />
 
       {/* Что печатаем */}
@@ -138,6 +140,7 @@ export default function TipografiyaPage() {
         </div>
       </section>
 
+      <CtaButtons title="Рассчитаем тираж под вашу задачу" />
       <FinalCTA />
     </SiteLayout>
   );

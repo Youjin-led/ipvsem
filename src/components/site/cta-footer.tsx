@@ -148,12 +148,17 @@ export function Footer() {
           {/* Основные разделы */}
           <nav className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5">
             {[
-              { label: "Сервисы", href: "/services" },
-              { label: "Роспатент", href: "/rospatent" },
-              { label: "Типография", href: "/tipografiya" },
-              { label: "Общество", href: "/obshestvo" },
-              { label: "Знания", href: "/znaniya" },
+              { label: "Услуги", href: "/services" },
               { label: "Депонирование", href: "/deponirovanie" },
+              { label: "Патентование", href: "/rospatent" },
+              { label: "Стратегия", href: "/strategiya" },
+              { label: "Типография", href: "/tipografiya" },
+              { label: "О нас", href: "/about" },
+              { label: "Отзывы", href: "/reviews" },
+              { label: "Сообщество", href: "/obshestvo" },
+              { label: "База знаний", href: "/znaniya" },
+              { label: "Контакты", href: "/kontakty" },
+              { label: "Личный кабинет", href: "/cabinet" },
             ].map((l) => (
               <a
                 key={l.href}

@@ -3,6 +3,7 @@ import { SiteLayout } from "@/components/site/site-layout";
 import { PageHero } from "@/components/site/page-hero";
 import { Protection } from "@/components/site/knowledge-cabinet";
 import { FinalCTA } from "@/components/site/cta-footer";
+import { CtaButtons } from "@/components/site/cta-buttons";
 import { PatentIcon } from "@/components/site/icons";
 import { SectionHeading } from "@/components/site/services";
 
@@ -50,6 +51,7 @@ export default function RospatentPage() {
         }
         description="Превращаем разработку в официальный охранный документ. Полное сопровождение от предварительной оценки до выдачи патента или свидетельства."
         icon={<PatentIcon className="h-10 w-10" />}
+        crumbs={[{ label: "Услуги", href: "/services" }, { label: "Патентование" }]}
       />
 
       {/* Направления */}
@@ -88,6 +90,7 @@ export default function RospatentPage() {
       </section>
 
       <Protection />
+      <CtaButtons title="Оценим патентоспособность вашей разработки" />
       <FinalCTA />
     </SiteLayout>
   );

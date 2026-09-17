@@ -95,10 +95,10 @@ export function Hero() {
           {/* ПРАВО — логотип */}
           <div className="relative flex items-center justify-center py-4">
             <div
-              className="pointer-events-none absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-400/10 blur-3xl"
+              className="pointer-events-none absolute left-1/2 top-1/2 h-144 w-144 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-400/10 blur-3xl"
               aria-hidden
             />
-            <Pyramids3D imgClassName="h-56 sm:h-72 lg:h-96" />
+            <Pyramids3D imgClassName="h-84 sm:h-108 lg:h-144" />
           </div>
         </div>
       </div>

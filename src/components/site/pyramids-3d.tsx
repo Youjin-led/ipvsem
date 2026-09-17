@@ -3,7 +3,7 @@
 import * as React from "react";
 import * as THREE from "three";
 
-export function Pyramids3D({ imgClassName = "h-44" }: { imgClassName?: string }) {
+export function Pyramids3D({ imgClassName = "h-66" }: { imgClassName?: string }) {
   const mountRef = React.useRef<HTMLDivElement>(null);
   const [live, setLive] = React.useState(false);
 

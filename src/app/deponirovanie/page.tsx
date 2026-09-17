@@ -1,258 +1,180 @@
 import type { Metadata } from "next";
 import { SiteLayout } from "@/components/site/site-layout";
-import { Upload, Fingerprint, FileText, Award, Check, QrCode } from "lucide-react";
+import { Breadcrumbs } from "@/components/site/breadcrumbs";
+import { DepoWorkspace } from "@/components/depo/depo-workspace";
+import { CtaButtons } from "@/components/site/cta-buttons";
+import { ALGO_1, ALGO_2 } from "@/components/depo/pipeline";
+import { Archive, FileCheck2, Fingerprint, KeyRound } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Депонирование авторских прав — IPvsem.ru",
+  title: "Депонирование с верификацией — IPvsem.ru",
   description:
-    "Зафиксируйте авторство за 60 секунд. Загрузите архив — мы вычислим цифровой отпечаток и опубликуем свидетельство. Онлайн-верификация в любой момент.",
+    "Два контейнера, две хеш-суммы SHA-256 и SHA-512, мета-PDF и реестр ИС. Депонируйте файлы прямо в браузере и проверяйте целостность для суда.",
   keywords: [
     "депонирование",
-    "авторское право",
-    "свидетельство",
-    "хеш MD5",
-    "цифровой отпечаток",
-    "фиксация авторства",
     "верификация",
+    "хеш SHA-256",
+    "хеш SHA-512",
+    "реестр ИС",
+    "свидетельство",
+    "фиксация авторства",
   ],
   openGraph: {
-    title: "Депонирование авторских прав — IPvsem.ru",
-    description: "Зафиксируйте авторство за 60 секунд. Первое свидетельство — бесплатно.",
+    title: "Депонирование с верификацией — IPvsem.ru",
+    description: "2 контейнера · 2 хеша · мета-PDF · реестр · проверка для суда.",
     type: "website",
     locale: "ru_RU",
   },
 };
 
-const STEPS = [
-  {
-    icon: Upload,
-    n: "01",
-    title: "Загрузите архив",
-    text: "Соберите материалы произведения в ZIP-архив размером до 10 МБ и прикрепите к форме депонирования.",
-  },
-  {
-    icon: Fingerprint,
-    n: "02",
-    title: "Цифровой отпечаток",
-    text: "Система автоматически вычисляет уникальную хеш-сумму MD5 — неизменный цифровой код вашего файла.",
-  },
-  {
-    icon: FileText,
-    n: "03",
-    title: "Заполните данные",
-    text: "Укажите ФИО автора, название произведения и его тип. Эти сведения будут включены в свидетельство.",
-  },
-  {
-    icon: Award,
-    n: "04",
-    title: "Свидетельство готово",
-    text: "Получите персональную страницу-свидетельство с уникальным номером и QR-кодом для проверки подлинности.",
-  },
+const SCHEME = [
+  { n: "01", title: "Приём файлов и данных", text: "Исходные файлы + идентификационные данные автора и правообладателя." },
+  { n: "02", title: "1-й контейнер", text: "Архив с паролем, сгенерированным сервером (в прототипе — браузером)." },
+  { n: "03", title: "Две хеш-суммы", text: `${ALGO_1} и ${ALGO_2} первого контейнера — два разных алгоритма.` },
+  { n: "04", title: "Мета-файл PDF", text: "Хеши, данные правообладателя и ссылка на страницу верификации." },
+  { n: "05", title: "2-й контейнер", text: "Финальный архив: 1-й контейнер + мета-PDF (опционально с паролем)." },
+  { n: "06", title: "Внешние хранилища", text: "Облако, блокчейн, торрент, соцсети — с фиксацией временной метки." },
+  { n: "07", title: "Запись в реестр", text: "Хеши, данные и местоположение контейнера. Статус жизненного цикла." },
+  { n: "08", title: "Пароли пользователю", text: "Пароль 1-го контейнера и доступ ко 2-му во внешних хранилищах." },
+];
+
+const VERIFY_STEPS = [
+  "Запрос на верификацию",
+  "Скачивание 2-го контейнера из хранилища",
+  "Извлечение 1-го контейнера и мета-PDF",
+  "Пересчёт контрольных хешей и сверка с PDF",
+  "Отчёт о верификации для суда / эксперта",
 ];
 
 export default function DeponirovaniePage() {
   return (
     <SiteLayout>
-      {/* ===== Hero-секция ===== */}
+      {/* Hero */}
       <section className="relative overflow-hidden pt-24 pb-10">
         <div className="absolute inset-0 -z-10 dot-bg opacity-30" aria-hidden />
         <div className="orb anim-drift -left-20 top-10 h-72 w-72 bg-brand-500/20" aria-hidden />
         <div className="orb anim-drift-slow right-0 top-1/3 h-64 w-64 bg-glow/15" aria-hidden />
 
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <Breadcrumbs
+            items={[{ label: "Услуги", href: "/services" }, { label: "Депонирование" }]}
+          />
           <div className="text-center">
-            {/* Бейдж */}
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-400/30 bg-brand-500/10 px-3 py-1.5 text-xs font-medium text-brand-300 backdrop-blur-sm">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-glow opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-glow" />
               </span>
-              Тестовый режим · архивы до 10 МБ · хеш MD5
+              Рабочий прототип · 2 контейнера · {ALGO_1} + {ALGO_2}
             </div>
 
-            {/* Заголовок */}
             <h1 className="text-balance text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
-              Депонирование <span className="text-gradient">авторских прав</span>
-              <br />
-              <span className="text-2xl font-normal text-muted-foreground sm:text-3xl">
-                за 60 секунд
-              </span>
+              Депонирование <span className="text-gradient">с верификацией</span>
             </h1>
 
-            {/* Описание */}
             <p className="mt-6 mx-auto max-w-2xl text-pretty text-sm text-muted-foreground sm:text-base">
-              Загрузите архив с произведением — мы вычислим уникальный цифровой
-              отпечаток (хеш-сумму MD5) и опубликуем свидетельство о
-              депонировании с уникальным номером. Подтверждение авторства в любой
-              момент через онлайн-верификацию.
+              Упаковываем файлы в архив с паролем, считаем две хеш-суммы,
+              выпускаем мета-PDF и финальный контейнер, ведём реестр — а суд
+              или эксперт проверяют целостность за минуту.
             </p>
 
-            {/* Кнопки */}
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
               <a
                 href="#start"
-                className="inline-block rounded-none border border-brand-400 bg-brand-500/60 px-6 py-3 text-sm font-semibold text-brand-300 shadow-lg shadow-brand-500/30 backdrop-blur-md transition-all hover:border-brand-300 hover:bg-brand-500/80 hover:text-brand-200"
+                className="inline-flex min-h-11 items-center justify-center rounded-[10px] bg-brand-400 px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-black shadow-lg shadow-brand-400/25 transition-all hover:-translate-y-0.5 hover:bg-brand-300"
               >
                 Начать депонирование
               </a>
               <a
-                href="#start"
-                className="inline-block rounded-none border border-brand-400/40 bg-brand-500/20 px-6 py-3 text-sm font-semibold text-brand-300 backdrop-blur-md transition-all hover:border-brand-400 hover:bg-brand-500/40"
+                href="#verify"
+                className="inline-flex min-h-11 items-center justify-center rounded-[10px] border border-brand-400/40 bg-brand-500/10 px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-brand-300 transition-all hover:bg-brand-500/20"
               >
-                Войти
+                Проверить контейнер
               </a>
-            </div>
-
-            {/* Преимущества */}
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-brand-400" />
-                Без бумажной почты
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-brand-400" />
-                Мгновенная публикация
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-brand-400" />
-                1 свидетельство уже опубликовано
-              </span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ===== Как это работает ===== */}
-      <section className="relative py-16">
+      {/* Схема Фиг.1 */}
+      <section className="relative py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-12 text-center">
+          <div className="mb-10 text-center">
             <h2 className="text-balance text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
               Как это <span className="text-gradient">работает</span>
             </h2>
             <p className="mt-3 text-sm text-muted-foreground sm:text-base">
-              Четыре шага до свидетельства
+              Восемь этапов — от приёма файлов до выдачи паролей
             </p>
           </div>
-
-          {/* Шаги */}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {STEPS.map((step, i) => (
-              <div
-                key={step.n}
-                className="group relative rounded-2xl border border-border/60 bg-card/40 p-6 backdrop-blur-sm transition-all duration-500 hover:border-brand-400/50 hover:bg-card/60"
-                style={{ animation: `float-up 7s ease-in-out infinite ${i * 0.3}s` }}
+          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {SCHEME.map((s) => (
+              <li
+                key={s.n}
+                className="rounded-2xl border border-border/60 bg-card/40 p-5 backdrop-blur-sm transition-colors hover:border-brand-400/50"
               >
-                {/* Номер */}
-                <div className="mb-4 flex items-center justify-between">
-                  <span className="text-3xl font-bold text-gradient">{step.n}</span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500/15 text-brand-300 transition-transform duration-500 group-hover:scale-110">
-                    <step.icon className="h-5 w-5" />
-                  </div>
-                </div>
-                <h3 className="text-base font-semibold">{step.title}</h3>
-                <p className="mt-2 text-xs text-muted-foreground">{step.text}</p>
-
-                {/* Стрелка между шагами (на десктопе) */}
-                {i < STEPS.length - 1 && (
-                  <div className="pointer-events-none absolute -right-3 top-1/2 hidden -translate-y-1/2 text-brand-400/40 lg:block">
-                    <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
-                      <path d="M5 12 H19 M13 6 L19 12 L13 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                )}
-              </div>
+                <span className="text-gradient text-2xl font-black">{s.n}</span>
+                <h3 className="mt-2 text-sm font-semibold">{s.title}</h3>
+                <p className="mt-1.5 text-xs text-muted-foreground">{s.text}</p>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
 
-      {/* ===== Форма депонирования (заглушка) ===== */}
-      <section id="start" className="relative scroll-mt-20 py-16">
+      {/* Устройство контейнера Фиг.2 */}
+      <section className="relative py-12 sm:py-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl border-2 border-brand-400/40 bg-black/40 p-8 backdrop-blur-md shadow-2xl shadow-brand-900/20 sm:p-12">
-            <div className="text-center">
-              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-brand-400/40 bg-brand-500/10">
-                <Upload className="h-8 w-8 text-brand-300" />
-              </div>
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                Защитите своё <span className="text-gradient">произведение</span>
-              </h2>
-              <p className="mt-4 text-sm text-muted-foreground sm:text-base">
-                Регистрация займёт меньше минуты. Первое свидетельство — бесплатно.
-              </p>
-
-              {/* Кнопки */}
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
-                <a
-                  href="#"
-                  className="inline-block rounded-none border border-brand-400 bg-brand-500/60 px-6 py-3 text-sm font-semibold text-brand-300 shadow-lg shadow-brand-500/30 backdrop-blur-md transition-all hover:border-brand-300 hover:bg-brand-500/80 hover:text-brand-200"
-                >
-                  Создать аккаунт
-                </a>
-                <a
-                  href="#"
-                  className="inline-block rounded-none border border-brand-400/40 bg-brand-500/20 px-6 py-3 text-sm font-semibold text-brand-300 backdrop-blur-md transition-all hover:border-brand-400 hover:bg-brand-500/40"
-                >
-                  Войти
-                </a>
-              </div>
-            </div>
-
-            {/* Что можно депонировать */}
-            <div className="mt-10 border-t border-border/60 pt-6">
-              <p className="mb-4 text-center text-xs font-semibold uppercase tracking-wider text-brand-300">
-                Что можно депонировать
-              </p>
-              <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-3">
-                {[
-                  "Исходный код",
-                  "3D-модели",
-                  "Архитектурные проекты",
-                  "Научные статьи",
-                  "Дизайн-макеты",
-                  "Презентации",
-                  "Чертежи и схемы",
-                  "Рукописи",
-                  "API и алгоритмы",
-                ].map((item) => (
-                  <span key={item} className="flex items-center gap-1.5">
-                    <Check className="h-3 w-3 text-brand-400" />
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== CTA внизу ===== */}
-      <section className="relative overflow-hidden py-16">
-        <div className="absolute inset-0 -z-10 grid-bg grid-bg-fade opacity-30" aria-hidden />
-        <div className="orb anim-drift -right-20 top-1/4 h-64 w-64 bg-brand-500/20" aria-hidden />
-
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-400/40 bg-brand-500/10">
-              <QrCode className="h-7 w-7 text-brand-300" />
-            </div>
-            <h2 className="text-balance text-2xl font-bold tracking-tight sm:text-3xl">
-              Защитите своё произведение <span className="text-gradient">прямо сейчас</span>
-            </h2>
-            <p className="mt-4 mx-auto max-w-xl text-sm text-muted-foreground sm:text-base">
-              Регистрация займёт меньше минуты. Первое свидетельство — бесплатно.
+          <h2 className="text-center text-balance text-2xl font-bold tracking-tight sm:text-3xl">
+            Устройство <span className="text-gradient">финального контейнера</span>
+          </h2>
+          <div className="mt-8 rounded-3xl border-2 border-brand-400/40 bg-card/40 p-5 backdrop-blur-sm sm:p-8">
+            <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-brand-300">
+              <Archive className="h-4 w-4" /> 2-й контейнер
             </p>
-            <div className="mt-8">
-              <a
-                href="#start"
-                className="inline-block rounded-none border border-brand-400 bg-brand-500/60 px-8 py-3 text-sm font-semibold text-brand-300 shadow-lg shadow-brand-500/30 backdrop-blur-md transition-all hover:border-brand-300 hover:bg-brand-500/80 hover:text-brand-200"
-              >
-                Создать аккаунт
-              </a>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-border/60 bg-background/50 p-4">
+                <p className="flex items-center gap-2 text-sm font-semibold">
+                  <KeyRound className="h-4 w-4 text-brand-300" /> 1-й контейнер
+                </p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Архив с паролем. Исходные файлы группы.
+                </p>
+                <p className="mt-3 flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground">
+                  <Fingerprint className="h-3.5 w-3.5 text-brand-400" /> {ALGO_1} + {ALGO_2}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border/60 bg-background/50 p-4">
+                <p className="flex items-center gap-2 text-sm font-semibold">
+                  <FileCheck2 className="h-4 w-4 text-brand-300" /> Мета-PDF
+                </p>
+                <ul className="mt-2 list-inside list-disc text-xs text-muted-foreground">
+                  <li>Данные правообладателя</li>
+                  <li>Хеш-сумма 1 и хеш-сумма 2</li>
+                  <li>Ссылка на страницу верификации</li>
+                </ul>
+              </div>
             </div>
           </div>
+
+          <h3 className="mt-12 text-center text-xl font-bold">Проверка для суда и эксперта</h3>
+          <ol className="mt-6 grid gap-3">
+            {VERIFY_STEPS.map((t, i) => (
+              <li key={t} className="flex items-center gap-3 rounded-xl border border-border/60 bg-card/40 px-4 py-3 text-sm backdrop-blur-sm">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-500/15 font-mono text-xs font-bold text-brand-300">
+                  {i + 1}
+                </span>
+                {t}
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
+
+      {/* Рабочая зона: мастер + верификация + реестр */}
+      <DepoWorkspace />
+
+      <CtaButtons title="Задепонировали? Закрепите результат патентом" />
     </SiteLayout>
   );
 }

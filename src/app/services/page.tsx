@@ -7,6 +7,7 @@ import { Services } from "@/components/site/services";
 import { SearchTools } from "@/components/site/search-tools";
 import { Pipeline } from "@/components/site/pipeline";
 import { FinalCTA } from "@/components/site/cta-footer";
+import { CtaButtons } from "@/components/site/cta-buttons";
 import { DepositIcon } from "@/components/site/icons";
 
 export const metadata: Metadata = {
@@ -57,12 +58,13 @@ export default function ServicesPage() {
         }
         description="Фиксируем авторство, готовим к регистрации, строим портфель и печатаем. Все этапы работают в единой инфраструктуре и под контролем экспертов."
         icon={<DepositIcon className="h-10 w-10" />}
+        crumbs={[{ label: "Услуги" }]}
       />
 
       <Services />
 
       {/* Подразделы */}
-      <section className="relative py-12 sm:py-16">
+      <section id="tools" className="relative scroll-mt-20 py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
             Инструменты и подразделы
@@ -89,6 +91,7 @@ export default function ServicesPage() {
       <SearchTools />
 
       <Pipeline />
+      <CtaButtons title="Выберите направление — остальное возьмём на себя" />
       <FinalCTA />
     </SiteLayout>
   );

@@ -313,7 +313,7 @@ export function Cabinet() {
                 asChild
                 className="bg-gradient-to-r from-brand-500 to-brand-700 text-white shadow-lg shadow-brand-700/30"
               >
-                <a href="#cta">Создать личный кабинет</a>
+                <a href="/cabinet">Создать личный кабинет</a>
               </Button>
             </div>
           </div>

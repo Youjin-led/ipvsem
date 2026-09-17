@@ -4,6 +4,7 @@ import { PageHero } from "@/components/site/page-hero";
 import { Society, Comparison } from "@/components/site/society";
 import { Cabinet } from "@/components/site/knowledge-cabinet";
 import { FinalCTA } from "@/components/site/cta-footer";
+import { CtaButtons } from "@/components/site/cta-buttons";
 import { CommunityIcon } from "@/components/site/icons";
 
 export const metadata: Metadata = {
@@ -31,11 +32,13 @@ export default function ObshestvoPage() {
         }
         description="Объединяем патентных поверенных, учёных со степенями, IP-юристов, инженеров и IT-специалистов. Понимаем технологии, конструкции, код и научную логику — и переводим это на язык права."
         icon={<CommunityIcon className="h-10 w-10" />}
+        crumbs={[{ label: "Сообщество" }]}
       />
 
       <Society />
       <Comparison />
       <Cabinet />
+      <CtaButtons title="Станьте частью сообщества авторов" />
       <FinalCTA />
     </SiteLayout>
   );

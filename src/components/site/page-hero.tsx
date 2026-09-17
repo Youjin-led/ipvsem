@@ -1,15 +1,18 @@
 import type { ReactNode } from "react";
+import { Breadcrumbs, type Crumb } from "./breadcrumbs";
 
 export function PageHero({
   eyebrow,
   title,
   description,
   icon,
+  crumbs,
 }: {
   eyebrow: string;
   title: ReactNode;
   description?: string;
   icon?: ReactNode;
+  crumbs?: Crumb[];
 }) {
   return (
     <section className="relative overflow-hidden pt-28 pb-6 sm:pt-32">
@@ -24,6 +27,7 @@ export function PageHero({
       />
 
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        {crumbs && <Breadcrumbs items={crumbs} />}
         <div className="flex flex-col items-center gap-6 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-brand-400/30 bg-brand-500/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-brand-300 backdrop-blur-sm">
             <span className="relative flex h-2 w-2">
