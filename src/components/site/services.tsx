@@ -18,6 +18,7 @@ type Service = {
   subtitle: string;
   points: string[];
   cta: string;
+  href: string;
   accent: string;
 };
 
@@ -36,6 +37,7 @@ const SERVICES: Service[] = [
       "Поддержка и подтверждение 5 лет",
     ],
     cta: "Задепонировать объект",
+    href: "/deponirovanie",
     accent: "from-brand-400 to-brand-600",
   },
   {
@@ -52,6 +54,7 @@ const SERVICES: Service[] = [
       "Переписка с экспертизой и ответы на запросы",
     ],
     cta: "Проверить патентоспособность",
+    href: "/rospatent",
     accent: "from-brand-500 to-brand-700",
   },
   {
@@ -68,6 +71,7 @@ const SERVICES: Service[] = [
       "Масштабирование портфеля под рост бизнеса",
     ],
     cta: "Получить дорожную карту",
+    href: "/strategiya",
     accent: "from-brand-300 to-brand-600",
   },
   {
@@ -84,6 +88,7 @@ const SERVICES: Service[] = [
       "Сигнальные экземпляры и малые тиражи",
     ],
     cta: "Заказать печать",
+    href: "/tipografiya",
     accent: "from-glow to-brand-500",
   },
 ];
@@ -168,7 +173,7 @@ function ServiceCard({ service }: { service: Service }) {
           variant="ghost"
           className="group/btn -ml-3 text-brand-300 hover:bg-brand-500/10 hover:text-brand-200"
         >
-          <a href="#cta">
+          <a href={service.href}>
             {service.cta}
             <ArrowUpRight className="ml-1.5 h-4 w-4 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
           </a>

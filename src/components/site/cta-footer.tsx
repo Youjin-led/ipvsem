@@ -154,6 +154,7 @@ export function Footer() {
               { label: "Стратегия", href: "/strategiya" },
               { label: "Типография", href: "/tipografiya" },
               { label: "О нас", href: "/about" },
+              { label: "Кейсы", href: "/cases" },
               { label: "Отзывы", href: "/reviews" },
               { label: "Сообщество", href: "/obshestvo" },
               { label: "База знаний", href: "/znaniya" },

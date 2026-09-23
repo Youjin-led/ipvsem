@@ -92,12 +92,12 @@ export function Pyramids3D({ imgClassName = "h-66" }: { imgClassName?: string })
       return mesh;
     };
 
-    const backL = makePyramid(1.42, 2.45, 0x8f8600, 0.85, 0.32);
-    backL.position.set(-0.98, 1.22, -0.55);
-    const backR = makePyramid(1.42, 2.45, 0x8f8600, 0.85, 0.32);
-    backR.position.set(0.98, 1.22, -0.55);
-    const front = makePyramid(1.32, 2.1, 0xffd400, 0.7, 0.24);
-    front.position.set(0, 1.05, 0.62);
+    const backL = makePyramid(1.3, 2.25, 0x8f8600, 0.85, 0.32);
+    backL.position.set(-1.35, 1.12, -0.55);
+    const backR = makePyramid(1.3, 2.25, 0x8f8600, 0.85, 0.32);
+    backR.position.set(1.35, 1.12, -0.55);
+    const front = makePyramid(1.2, 1.95, 0xffd400, 0.7, 0.24);
+    front.position.set(0, 0.97, 0.9);
     logo.add(backL, backR, front);
 
     // --- Лёгкое следование за курсором (без свободного вращения) ---

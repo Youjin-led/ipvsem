@@ -247,19 +247,16 @@ export default function AboutPage() {
             <div className="rounded-3xl border border-border/60 bg-card/40 p-6 backdrop-blur-sm sm:p-8">
               <h3 className="text-xl font-bold">Кейсы и портфолио</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                От идеи до реализации: примеры работ и письма благодарности
-                клиентов — на сайте ПатентВсем. Перенос 5–6 кейсов с TenChat
-                готовится.
+                7 разборов из практики: задача клиента и решение — от держателя
+                заготовок до дозиметров. Полные тексты — в блоге TenChat.
               </p>
-              <a
-                href="https://patentvsem.ru/primery-rabot"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/cases"
                 className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-[10px] border border-brand-400/40 px-6 py-2.5 text-sm font-extrabold uppercase tracking-wide text-brand-300 transition-all hover:bg-brand-500/10"
               >
-                Смотреть портфолио
-                <ExternalLink className="h-4 w-4" />
-              </a>
+                Смотреть кейсы
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
             <div className="rounded-3xl border border-border/60 bg-card/40 p-6 backdrop-blur-sm sm:p-8">
               <h3 className="text-xl font-bold">Отзывы клиентов</h3>
