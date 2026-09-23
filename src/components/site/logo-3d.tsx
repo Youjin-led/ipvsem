@@ -48,19 +48,19 @@ export function Logo3D({ imgClassName = "h-11" }: { imgClassName?: string }) {
           style={{ transform: rotate, transition: "transform 120ms ease-out" }}
         >
           <Image
-            src={withBasePath("/LOGO.png")}
+            src={withBasePath("/pyramids.png")}
             alt=""
             aria-hidden
-            width={2035}
-            height={773}
+            width={750}
+            height={678}
             priority
             className={`absolute left-0 top-0 ${imgClassName} w-auto translate-y-1 opacity-20 blur-[2px] brightness-0 [transform:translate3d(0,3px,-14px)]`}
           />
           <Image
-            src={withBasePath("/LOGO.png")}
+            src={withBasePath("/pyramids.png")}
             alt="IPvsem.ru — Сообщество Авторов"
-            width={2035}
-            height={773}
+            width={750}
+            height={678}
             priority
             className={`relative ${imgClassName} w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.35)] [transform:translateZ(22px)]`}
           />
