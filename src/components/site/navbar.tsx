@@ -5,10 +5,16 @@ import Link from "next/link";
 import { ChevronDown, ExternalLink } from "lucide-react";
 import { Logo3D } from "@/components/site/logo-3d";
 
+type NavChild = {
+  label: string;
+  href: string;
+  external?: boolean;
+};
+
 type NavItem = {
   label: string;
   href: string;
-  children?: { label: string; href: string }[];
+  children?: NavChild[];
 };
 
 const NAV: NavItem[] = [
@@ -35,6 +41,12 @@ const NAV: NavItem[] = [
     ],
   },
   { label: "Контакты", href: "/kontakty" },
+];
+
+/** Наши продукты: внешние ссылки открываются в новой вкладке */
+const PRODUCTS: NavChild[] = [
+  { label: "Патентное бюро ПатентВсем", href: "https://patentvsem.ru", external: true },
+  { label: "Биржа готовых товарных знаков", href: "https://znakvsem.ru", external: true },
 ];
 
 export function Navbar() {
@@ -95,15 +107,29 @@ export function Navbar() {
               </Link>
             )
           )}
-          <a
-            href="https://znakvsem.ru"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 whitespace-nowrap rounded-md px-3 py-2 text-lg font-extrabold text-black/85 transition-colors hover:bg-black/10 hover:text-black"
-          >
-            ЗнакВсем
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
+          {/* Наши продукты — внешние ссылки в новой вкладке */}
+          <div className="group relative">
+            <span className="flex cursor-default items-center gap-1 whitespace-nowrap rounded-md px-3 py-2 text-lg font-extrabold text-black/85 transition-colors hover:bg-black/10 hover:text-black">
+              Наши продукты
+              <ChevronDown className="h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-180" />
+            </span>
+            <div className="pointer-events-none absolute right-0 top-full z-50 w-72 -translate-y-1 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100">
+              <div className="mt-2 overflow-hidden rounded-lg border border-black/10 bg-white shadow-xl shadow-black/20">
+                {PRODUCTS.map((p) => (
+                  <a
+                    key={p.label}
+                    href={p.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 border-b border-black/5 px-4 py-2.5 text-sm text-neutral-800 transition-colors last:border-b-0 hover:bg-[#f7efd8] hover:text-black"
+                  >
+                    {p.label}
+                    <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
         </nav>
 
         {/* Действия */}
@@ -179,15 +205,25 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
-          <a
-            href="https://znakvsem.ru"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex min-h-11 items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm text-neutral-900 transition-colors hover:bg-[#f7efd8]"
-          >
-            ЗнакВсем
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
+          <div className="flex flex-col">
+            <span className="flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-900">
+              Наши продукты
+            </span>
+            <div className="ml-3 flex flex-col border-l border-black/10 pl-3">
+              {PRODUCTS.map((p) => (
+                <a
+                  key={p.label}
+                  href={p.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex min-h-11 items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] text-neutral-600 transition-colors hover:bg-[#f7efd8] hover:text-black"
+                >
+                  {p.label}
+                  <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                </a>
+              ))}
+            </div>
+          </div>
           <Link
             href="/cabinet"
             className="mt-2 inline-flex min-h-11 items-center justify-center rounded-full border border-black/20 bg-[#d4af37] px-3 py-2.5 text-center text-sm font-semibold text-black transition-all hover:bg-black hover:text-[#d4af37]"

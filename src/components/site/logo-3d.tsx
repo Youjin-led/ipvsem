@@ -62,7 +62,7 @@ export function Logo3D({ imgClassName = "h-11" }: { imgClassName?: string }) {
             width={750}
             height={678}
             priority
-            className={`relative ${imgClassName} w-auto drop-shadow-[0_3px_8px_rgba(0,0,0,0.35)] [transform:translateZ(22px)]`}
+            className={`relative ${imgClassName} w-auto mix-blend-screen drop-shadow-[0_3px_8px_rgba(0,0,0,0.35)] [transform:translateZ(22px)]`}
           />
           <span
             aria-hidden

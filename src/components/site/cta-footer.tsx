@@ -102,25 +102,39 @@ export function FinalCTA() {
 }
 
 /* ============ Footer в стиле znakvsem.ru ============ */
-const FOOTER_DETAILS = [
-  { label: "ИП", value: "Довлатов Игорь Мамедяревич" },
-  { label: "ИНН", value: "772612579857" },
-  { label: "ОГРН/ОГРНИП", value: "319774600637982" },
+type FooterCard = {
+  label: string;
+  lines: { value: string; href?: string; external?: boolean }[];
+};
+
+const FOOTER_DETAILS: FooterCard[] = [
+  {
+    label: "ИП",
+    lines: [
+      { value: "Довлатов Игорь Мамедяревич" },
+      { value: "ИНН 772612579857" },
+      { value: "ОГРНИП 319774600637982" },
+    ],
+  },
+  {
+    label: 'ООО «Патентные Технологии»',
+    lines: [
+      { value: "ИНН 7716687757" },
+      { value: "129327, г. Москва, Анадырский пр-д, д. 31/1, кв. 31" },
+      { value: "ptn.su", href: "https://ptn.su/", external: true },
+    ],
+  },
   {
     label: "Электронная почта",
-    value: "patentvsem@mail.ru",
-    href: "mailto:patentvsem@mail.ru",
+    lines: [{ value: "patentvsem@mail.ru", href: "mailto:patentvsem@mail.ru" }],
   },
   {
     label: "Телефон",
-    value: "+7 968 997-38-35",
-    href: "tel:+79689973835",
+    lines: [{ value: "+7 968 997-38-35", href: "tel:+79689973835" }],
   },
   {
     label: "Биржа знаков",
-    value: "znakvsem.ru",
-    href: "https://znakvsem.ru",
-    external: true,
+    lines: [{ value: "znakvsem.ru", href: "https://znakvsem.ru", external: true }],
   },
 ];
 
@@ -133,9 +147,17 @@ export function Footer() {
         <div className="grid content-start gap-3">
           <div className="flex items-center gap-3">
             <Image src={withBasePath("/LOGO.png")} alt="" aria-hidden width={2035} height={773} className="h-10 w-auto sm:h-12" />
-            <p className="text-xs font-black uppercase tracking-[0.14em] text-brand-400">
-              IP EcoSystem · ПатентВсем
-            </p>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-brand-400">
+                IP EcoSystem
+              </p>
+              <p className="text-sm font-black uppercase tracking-[0.14em] text-white">
+                ПатентВсем
+                <span className="font-medium normal-case tracking-normal text-muted-foreground">
+                  {" "}— сервис депонирования
+                </span>
+              </p>
+            </div>
           </div>
           <h2 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl">
             Сообщество <span className="text-gradient">Авторов</span>
@@ -187,19 +209,22 @@ export function Footer() {
               className="grid min-h-[92px] content-start gap-1.5 rounded-lg border border-brand-400/15 bg-gradient-to-br from-white to-[#f7efd8] p-4 text-[#141414] transition-colors"
             >
               <span className="text-[13px] text-[#666666]">{d.label}</span>
-              {d.href ? (
-                <a
-                  href={d.href}
-                  target={d.external ? "_blank" : undefined}
-                  rel={d.external ? "noopener noreferrer" : undefined}
-                  className="break-words text-sm font-bold text-[#141414] underline decoration-brand-400/60 underline-offset-3 transition-colors hover:text-brand-600"
-                >
-                  {d.value}
-                </a>
-              ) : (
-                <strong className="break-words text-sm font-bold">
-                  {d.value}
-                </strong>
+              {d.lines.map((l) =>
+                l.href ? (
+                  <a
+                    key={l.value}
+                    href={l.href}
+                    target={l.external ? "_blank" : undefined}
+                    rel={l.external ? "noopener noreferrer" : undefined}
+                    className="break-words text-sm font-bold text-[#141414] underline decoration-brand-400/60 underline-offset-3 transition-colors hover:text-brand-600"
+                  >
+                    {l.value}
+                  </a>
+                ) : (
+                  <strong key={l.value} className="break-words text-sm font-bold">
+                    {l.value}
+                  </strong>
+                )
               )}
             </div>
           ))}
@@ -210,7 +235,7 @@ export function Footer() {
       <div className="border-t border-border/60">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-2 px-4 py-5 sm:flex-row sm:items-center sm:px-6 lg:px-8">
           <p className="text-xs text-muted-foreground">
-            © 2026 IPvsem.ru — Сообщество Авторов. Все права защищены и
+            © 2026 IPvsem.ru — сервис депонирования. Все права защищены и
             задепонированы.
           </p>
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
