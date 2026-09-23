@@ -7,6 +7,7 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Navbar } from "@/components/site/navbar";
 import { withBasePath } from "@/lib/paths";
 
 const roboto = Roboto({
@@ -67,6 +68,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
+          <Navbar />
           {children}
           <Toaster />
         </ThemeProvider>

@@ -178,7 +178,7 @@ export function Navbar() {
               >
                 {item.label}
               </Link>
-            )}
+            ))}
           <a
             href="https://znakvsem.ru"
             target="_blank"
