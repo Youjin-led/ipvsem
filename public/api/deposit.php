@@ -237,42 +237,72 @@ function depo_api_public(string $api, string $token, string $path): ?array
     return is_array($j) ? $j : null;
 }
 
-function depo_db(array $cfg): PDO
+function depo_store_local(array $cfg, string $recordId, string $tmpPath): string
 {
-    try {
-        return new PDO(
-            'mysql:host=' . $cfg['host'] . ';dbname=' . $cfg['name'] . ';charset=utf8mb4',
-            $cfg['user'],
-            $cfg['pass'],
-            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-        );
-    } catch (PDOException $e) {
-        depo_http_error(500, 'MySQL: ' . $e->getMessage());
+    $dir = rtrim(DEPO_STORE_DIR, '/\\') . '/' . $recordId;
+    if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
+        depo_http_error(500, 'Нет доступа для записи в хранилище');
     }
+    $dest = $dir . '/container-2.zip';
+    if (!rename($tmpPath, $dest)) {
+        if (!copy($tmpPath, $dest)) {
+            depo_http_error(500, 'Ошибка сохранения контейнера в хранилище');
+        }
+        @unlink($tmpPath);
+    }
+    return $dest;
 }
 
-function depo_ensure_table(PDO $pdo): void
+function depo_yandex_get_path(string $base, string $recordId): string
 {
-    $pdo->exec(
-        "CREATE TABLE IF NOT EXISTS deposits (
-            record_id VARCHAR(40) PRIMARY KEY,
-            created_at VARCHAR(64) NOT NULL,
-            author VARCHAR(255) NOT NULL DEFAULT '',
-            holder VARCHAR(255) NOT NULL DEFAULT '',
-            title VARCHAR(255) NOT NULL DEFAULT '',
-            tags TEXT NULL,
-            algo1 VARCHAR(32) NOT NULL DEFAULT '',
-            hash1 TEXT NOT NULL,
-            algo2 VARCHAR(32) NOT NULL DEFAULT '',
-            hash2 TEXT NOT NULL,
-            files_count INT NOT NULL DEFAULT 1,
-            status VARCHAR(64) NOT NULL DEFAULT 'Депонирован',
-            public_url TEXT NULL,
-            container_url TEXT NULL,
-            local_size BIGINT NULL,
-            error_log TEXT NULL,
-            created_ts DATETIME NULL,
-            KEY idx_status (status)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
-    );
+    $base = trim($base, '/');
+    return 'disk:/' . ($base ? $base . '/' . $recordId : $recordId) . '/container-2.zip';
+}
+
+function depo_yandex_request(string $method, string $url, array $options = []): ?array
+{
+    $ch = curl_init($url);
+    $_opt = [
+        CURLOPT_CUSTOMREQUEST => $method,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 30,
+    ] + ($options['headers'] ?? []) + ($options['http'] ?? []);
+    curl_setopt_array($ch, $_opt);
+    $res = curl_exec($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+    curl_close($ch);
+    return ($code >= 200 && $code < 300) ? ['code' => $code, 'body' => (string)$res] : null;
+}
+
+if (!function_exists('depo_yandex_upload')) {
+    function depo_yandex_upload(string $token, string $remotePath, string $localPath): ?string
+    {
+        $base = 'https://webdav.yandex.ru/';
+        $ch = curl_init($base . ltrim($remotePath, '/'));
+        curl_setopt_array($ch, [
+            CURLOPT_PUT => true,
+            CURLOPT_INFILE => fopen($localPath, 'rb'),
+            CURLOPT_INFILESIZE => filesize($localPath),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 300,
+            CURLOPT_HTTPHEADER => ['Authorization: OAuth ' . $token],
+        ]);
+        curl_exec($ch);
+        $code = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        curl_close($ch);
+
+        if ($code < 200 || $code >= 300) {
+            // Публикацию до выгрузки не делаем — вернём null и это станет ошибкой Диска
+            return null;
+        }
+
+        // Запрос публичной ссылки
+        $pub = @file_get_contents(
+            'https://cloud-api.yandex.net/v1/disk/resources/publish?path=' . rawurlencode($remotePath),
+            false,
+            stream_context_create(['http' => ['header' => 'Authorization: OAuth ' . $token, 'timeout' => 30]])
+        );
+        $j = $pub ? json_decode($pub, true) : null;
+        return ($j['href'] ?? null) ?: (isset($j['error']) ? null : null);
+    }
 }
