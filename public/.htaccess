@@ -2,10 +2,6 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # Принудительный HTTPS
-  RewriteCond %{HTTPS} off
-  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
-
   # Чистые URL: /about -> about.html (если такой файл есть)
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-f
