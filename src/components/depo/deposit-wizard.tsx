@@ -33,10 +33,49 @@ import {
 
 const STORAGE_OPTIONS = [
   "Облачное хранилище",
+  "Яндекс.Диск",
   "Блокчейн-сеть",
   "Торрент-сеть",
   "Сервер соцсети",
 ];
+
+const API_BASE =
+  typeof window !== "undefined" ? `${window.location.origin}/api` : "/api";
+const SECRET = "IPVSEM_BROWSER_2026";
+
+async function postDeposit(
+  c2: Blob,
+  entry: RegistryEntry
+): Promise<{ ok: boolean; publicUrl?: string; error?: string }> {
+  try {
+    const fd = new FormData();
+    fd.append("secret", SECRET);
+    fd.append("container2", new File([c2], entry.container2Name, { type: "application/zip" }));
+    fd.append(
+      "payload",
+      JSON.stringify({
+        recordId: entry.id,
+        createdAt: entry.createdAt,
+        author: entry.author,
+        holder: entry.holder,
+        title: entry.title,
+        tags: entry.tags,
+        algo1: entry.algo1,
+        hash1: entry.hash1,
+        algo2: entry.algo2,
+        hash2: entry.hash2,
+        filesCount: entry.filesCount,
+        storages: entry.storages.map((s) => ({ name: s.name, ref: s.ref, stampedAt: s.stampedAt })),
+      })
+    );
+    const res = await fetch(`${API_BASE}/deposit.php`, { method: "POST", body: fd });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) return { ok: false, error: data?.error ?? `HTTP ${res.status}` };
+    return { ok: true, publicUrl: data?.publicUrl ?? undefined };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Сеть недоступна" };
+  }
+}
 
 const MAX_TOTAL = 100 * 1024 * 1024;
 
@@ -55,7 +94,7 @@ export function DepositWizard({ onDone }: { onDone?: () => void }) {
   const [holder, setHolder] = React.useState("");
   const [title, setTitle] = React.useState("");
   const [tags, setTags] = React.useState("");
-  const [storages, setStorages] = React.useState<string[]>(["Облачное хранилище"]);
+  const [storages, setStorages] = React.useState<string[]>(["Яндекс.Диск"]);
   const [protect2, setProtect2] = React.useState(true);
   const [phase, setPhase] = React.useState<"form" | "working" | "done">("form");
   const [log, setLog] = React.useState<string[]>([]);
@@ -138,7 +177,7 @@ export function DepositWizard({ onDone }: { onDone?: () => void }) {
       );
       say(`→ 2-й контейнер готов (${(c2.size / 1024).toFixed(1)} КБ)`);
 
-      say("Этапы 6–7. Загрузка во внешние хранилища — вручную (прототип без сервера)…");
+      say("Этапы 6–7. Загрузка на сервер и вЯндекс.Диск…");
       await pause();
       const entry: RegistryEntry = {
         id,
@@ -157,9 +196,36 @@ export function DepositWizard({ onDone }: { onDone?: () => void }) {
         container2Name: `${id}-container-2.zip`,
         filesCount: files.length,
       };
+
+      const upload = await postDeposit(c2, entry);
+      if (upload.ok) {
+        if (upload.publicUrl) {
+          const hasYd = entry.storages.some((s) => s.name === "Яндекс.Диск");
+          entry.storages = hasYd
+            ? entry.storages.map((s) =>
+                s.name === "Яндекс.Диск" ? { ...s, ref: upload.publicUrl!, stampedAt: now } : s
+              )
+            : [
+                ...entry.storages,
+                { name: "Яндекс.Диск", ref: upload.publicUrl!, stampedAt: now },
+              ];
+        }
+        say("→ контейнер загружен на сервер, запись создана в реестре ИС");
+      } else {
+        saveRegistry([entry, ...loadRegistry()]);
+        const yRefSet = entry.storages.some((s) => s.name === "Яндекс.Диск" && s.ref);
+        say(
+          "→ сервер недоступен: запись создана локально в браузере; " +
+            (yRefSet
+              ? "загружено на Яндекс.Диск, ссылка вписана"
+              : "загрузите контейнер в Яндекс.Диск вручную и впишите ссылку")
+        );
+        if (upload.error) say(`⚠ ${upload.error}`);
+      }
+
       const reg = loadRegistry();
       saveRegistry([entry, ...reg]);
-      say("→ запись создана в реестре ИС");
+      say("→ запись сохранена в локальный реестр");
 
       setDone({ entry, pass1, pass2, c1, c2, meta });
       setRefs({});
@@ -192,7 +258,7 @@ export function DepositWizard({ onDone }: { onDone?: () => void }) {
     setHolder("");
     setTitle("");
     setTags("");
-    setStorages(["Облачное хранилище"]);
+    setStorages(["Яндекс.Диск"]);
     setPhase("form");
     setLog([]);
     setErr("");
@@ -395,8 +461,9 @@ export function DepositWizard({ onDone }: { onDone?: () => void }) {
           Запустить депонирование
         </button>
         <p className="text-xs text-muted-foreground">
-          Прототип: всё считается в вашем браузере. Хеши — {ALGO_1} и {ALGO_2}
-          (ГОСТ 34.11-2012, SHA-3, Blake2 — на серверной версии).
+          Контейнер шифруется и хешируется в браузере, затем загружается на сервер
+          и в Яндекс.Диск. Реестр ведётся в базе данных IPvsem. Хеши —{" "}
+          {ALGO_1} и {ALGO_2} (ГОСТ 34.11-2012, SHA-3, Blake2 — по запросу).
         </p>
       </div>
     </div>

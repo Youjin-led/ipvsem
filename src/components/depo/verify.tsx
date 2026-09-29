@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Check, FileUp, Loader2, ShieldCheck, X } from "lucide-react";
-import { loadRegistry, type RegistryEntry } from "./registry";
+import { loadRegistry, type LifecycleStatus, type RegistryEntry } from "./registry";
 import { readZip, sha256, sha512 } from "./pipeline";
 
 interface CheckRow {
@@ -11,9 +11,14 @@ interface CheckRow {
   detail?: string;
 }
 
+const API_BASE =
+  typeof window !== "undefined" ? `${window.location.origin}/api` : "/api";
+
 /** Верификация целостности (Фиг.3): скачать → извлечь → пересчитать → сверить → отчёт */
 export function VerifyBox() {
   const [entries, setEntries] = React.useState<RegistryEntry[]>([]);
+  const [serverRecord, setServerRecord] = React.useState<RegistryEntry | null>(null);
+  const [serverState, setServerState] = React.useState<"idle" | "loading" | "error" | "ok">("idle");
   const [recordId, setRecordId] = React.useState("");
   const [file, setFile] = React.useState<File | null>(null);
   const [password, setPassword] = React.useState("");
@@ -21,16 +26,80 @@ export function VerifyBox() {
   const [err, setErr] = React.useState("");
   const [rows, setRows] = React.useState<CheckRow[] | null>(null);
 
+  const registryAll = React.useMemo(() => {
+    const map = new Map<string, RegistryEntry>();
+    entries.forEach((e) => map.set(e.id, e));
+    if (serverRecord) map.set(serverRecord.id, serverRecord);
+    return Array.from(map.values());
+  }, [entries, serverRecord]);
+
   React.useEffect(() => {
     setEntries(loadRegistry());
     const m = window.location.hash.match(/[?&]id=([^&]+)/);
     if (m) setRecordId(decodeURIComponent(m[1]));
   }, []);
 
+  React.useEffect(() => {
+    if (!recordId || registryAll.some((e) => e.id === recordId)) {
+      setServerState("idle");
+      return;
+    }
+    let cancelled = false;
+    setServerState("loading");
+    fetch(`${API_BASE}/verify.php?id=${encodeURIComponent(recordId)}`)
+      .then((r) => r.json().catch(() => null))
+      .then((data) => {
+        if (cancelled) return;
+        if (data?.ok && data.record) {
+          const rec = data.record as {
+            id: string;
+            createdAt: string;
+            author: string;
+            holder: string;
+            title: string;
+            tags: string[];
+            algo1: string;
+            hash1: string;
+            algo2: string;
+            hash2: string;
+            filesCount: number;
+            status: string;
+            publicUrl?: string;
+          };
+          setServerRecord({
+            id: rec.id,
+            createdAt: rec.createdAt,
+            author: rec.author,
+            holder: rec.holder,
+            title: rec.title,
+            tags: rec.tags,
+            algo1: rec.algo1,
+            hash1: rec.hash1,
+            algo2: rec.algo2,
+            hash2: rec.hash2,
+            verifyUrl: `${window.location.origin}/deponirovanie#verify?id=${rec.id}`,
+            status: rec.status as LifecycleStatus,
+            storages: rec.publicUrl
+              ? [{ name: "Яндекс.Диск", ref: rec.publicUrl, stampedAt: "" }]
+              : [],
+            container2Name: `${rec.id}-container-2.zip`,
+            filesCount: rec.filesCount,
+          });
+          setServerState("ok");
+        } else {
+          setServerState("error");
+        }
+      })
+      .catch(() => setServerState("error"));
+    return () => {
+      cancelled = true;
+    };
+  }, [recordId, registryAll]);
+
   const run = async () => {
     setErr("");
     setRows(null);
-    const rec = entries.find((e) => e.id === recordId);
+    const rec = registryAll.find((e) => e.id === recordId);
     if (!rec) return setErr("Выберите запись реестра.");
     if (!file) return setErr("Прикрепите 2-й контейнер.");
     setBusy(true);
@@ -88,12 +157,27 @@ export function VerifyBox() {
           <span className="text-sm font-medium">Запись реестра *</span>
           <select value={recordId} onChange={(e) => setRecordId(e.target.value)} className={inputCls}>
             <option value="">— выбрать —</option>
-            {entries.map((e) => (
+            {registryAll.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.id} · {e.title}
               </option>
             ))}
           </select>
+          {serverState === "loading" && (
+            <p className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Ищем запись в реестре на сервере…
+            </p>
+          )}
+          {serverState === "error" && (
+            <p role="alert" className="text-xs font-medium text-red-500">
+              Запись не найдена в серверном реестре (или сервер недоступен).
+            </p>
+          )}
+          {serverState === "ok" && (
+            <p className="text-xs font-medium text-glow/90">
+              Запись получена из реестра IPvsem на сервере.
+            </p>
+          )}
         </label>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
