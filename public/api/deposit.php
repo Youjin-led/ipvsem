@@ -75,40 +75,31 @@ if (!move_uploaded_file($c2Tmp, $localPath)) {
 }
 $localSize = (int)@filesize($localPath);
 
-// 2. Яндекс.Диск (WebDAV) + публичная ссылка
+// 2. Яндекс.Диск (cloud-api REST) + публичная ссылка
 $yandexErr = null;
 $publicUrl = '';
 if (!empty($cfg['yandex']['token']) && $cfg['yandex']['token'] !== 'ПУСТОЙ_ТОКЕН') {
     $token = (string)$cfg['yandex']['token'];
-    $folder = (string)($cfg['yandex']['folder'] ?? '/ipvsem/deposits');
-    $webdav = 'https://webdav.yandex.ru';
+    $folder = trim((string)($cfg['yandex']['folder'] ?? '/ipvsem/deposits'), '/');
     $api = 'https://cloud-api.yandex.net/v1/disk';
 
-    $resp = depo_webdav(
-        'MKCOL',
-        $webdav . $folder,
-        $token
-    );
-    // 201 создана, 405 уже существует — норм. 401 — токен неверный.
-    if ($resp->code === 401) {
-        $yandexErr = 'Яндекс.Диск: неверный токен.';
+    // Создать папку (рекурсивно, как цепочку сегментов)
+    $parts = explode('/', $folder);
+    $cur = '';
+    foreach ($parts as $seg) {
+        $cur .= '/' . $seg;
+        depo_api_mkdir($api, $token, trim($cur, '/'));
     }
 
-    // PUT архива (верхний уровень папки)
     $putPath = $folder . '/' . $c2Name;
-    $resp = depo_webdav(
-        'PUT',
-        $webdav . $putPath,
-        $token,
-        file_get_contents($localPath)
-    );
-    if ($resp->code >= 400) {
-        $yandexErr = 'Яндекс.Диск: ошибка загрузки (' . $resp->code . ')' . $resp->body;
+    $up = depo_api_upload($api, $token, $putPath, $localPath);
+    if (!$up) {
+        $yandexErr = 'Яндекс.Диск: ошибка загрузки контейнера.';
     } else {
         // Публикация файла -> публичная ссылка
-        $pub = depo_api_public($api, $token, $putPath);
-        if (is_array($pub) && !empty($pub['href'])) {
-            $publicUrl = $pub['href'];
+        $publicUrl = depo_api_publish($api, $token, $putPath);
+        if (!$publicUrl) {
+            $yandexErr = 'Яндекс.Диск: файл загружен, но ссылка не опубликована.';
         }
     }
 }
@@ -191,35 +182,9 @@ depo_http_ok([
 
 /* ---------- helpers ---------- */
 
-function depo_webdav(string $method, string $url, string $token, string $body = ''): object
+function depo_api_mkdir(string $api, string $token, string $path): void
 {
-    $ch = curl_init($url);
-    $headers = [
-        'Authorization: OAuth ' . $token,
-    ];
-    if ($method === 'PUT') {
-        $headers[] = 'Content-Type: application/zip';
-    }
-    curl_setopt_array($ch, [
-        CURLOPT_CUSTOMREQUEST => $method,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POSTFIELDS => $body,
-        CURLOPT_HTTPHEADER => $headers,
-        CURLOPT_TIMEOUT => 60,
-    ]);
-    $res = curl_exec($ch);
-    $code = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-    $err = curl_error($ch);
-    curl_close($ch);
-    return (object)[
-        'code' => $code,
-        'body' => is_string($res) ? $res : ($err ?: ''),
-    ];
-}
-
-function depo_api_public(string $api, string $token, string $path): ?array
-{
-    $url = $api . '/resources/publish?path=' . urlencode($path);
+    $url = $api . '/resources?path=' . urlencode($path);
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_CUSTOMREQUEST => 'PUT',
@@ -227,13 +192,56 @@ function depo_api_public(string $api, string $token, string $path): ?array
         CURLOPT_HTTPHEADER => ['Authorization: OAuth ' . $token],
         CURLOPT_TIMEOUT => 60,
     ]);
+    curl_exec($ch);
+    curl_close($ch);
+    // 201 создана, 409 уже существует, 423 в другой очереди — все ок или несущественны
+}
+
+function depo_api_upload(string $api, string $token, string $path, string $localPath): bool
+{
+    $href = depo_api_call('GET', $api . '/resources/upload?path=' . urlencode($path) . '&overwrite=true', $token);
+    $href = is_array($href) ? ($href['href'] ?? '') : '';
+    if (!$href) {
+        return false;
+    }
+    $ch = curl_init($href);
+    curl_setopt_array($ch, [
+        CURLOPT_CUSTOMREQUEST => 'PUT',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_PUT => true,
+        CURLOPT_INFILE => fopen($localPath, 'rb'),
+        CURLOPT_INFILESIZE => (int)filesize($localPath),
+        CURLOPT_TIMEOUT => 300,
+    ]);
+    curl_exec($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+    curl_close($ch);
+    return $code >= 200 && $code < 300;
+}
+
+function depo_api_publish(string $api, string $token, string $path): ?string
+{
+    depo_api_call('PUT', $api . '/resources/publish?path=' . urlencode($path), $token);
+    $meta = depo_api_call('GET', $api . '/resources?path=' . urlencode($path), $token);
+    return is_array($meta) && !empty($meta['public_url']) ? $meta['public_url'] : null;
+}
+
+function depo_api_call(string $method, string $url, string $token)
+{
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_CUSTOMREQUEST => $method,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => ['Authorization: OAuth ' . $token],
+        CURLOPT_TIMEOUT => 60,
+    ]);
     $res = curl_exec($ch);
     $code = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
     curl_close($ch);
-    if ($code < 200 || $code >= 300) {
+    if ($code < 200 || $code >= 300 || !is_string($res)) {
         return null;
     }
-    $j = json_decode((string)$res, true);
+    $j = json_decode($res, true);
     return is_array($j) ? $j : null;
 }
 
